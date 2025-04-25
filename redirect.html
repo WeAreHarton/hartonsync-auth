@@ -1,15 +1,22 @@
 <!DOCTYPE html>
 <html>
-<head><title>OAuth Redirect</title></head>
-<body>
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get("code");
-  if (code) {
-    alert("Code: " + code); // 👈 show directly to test
-    window.opener.postMessage({ code }, "*");
-    window.close();
-  }
-</script>
-</body>
+  <head><title>OAuth Redirect</title></head>
+  <body>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+
+      console.log("🚨 REDIRECT.HTML ACTIVE");
+      console.log("🚨 CODE:", code);
+
+      alert("🚨 redirect.html loaded. Code: " + code);
+
+      if (code && window.opener) {
+        window.opener.postMessage({ code }, "*");
+        window.close();
+      } else {
+        alert("❌ Code not found or window.opener missing");
+      }
+    </script>
+  </body>
 </html>
