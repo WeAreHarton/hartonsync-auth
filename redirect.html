@@ -4,11 +4,11 @@
   <body>
     <script>
       const code = new URLSearchParams(window.location.search).get("code");
-      if (code) {
-        localStorage.setItem("hartonsync_code", code);
+      if (code && window.opener) {
+        window.opener.postMessage({ code }, "*");
         window.close();
       } else {
-        alert("❌ Code not found.");
+        alert("❌ Code not found or window.opener missing");
       }
     </script>
   </body>
