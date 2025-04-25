@@ -1,45 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Authentication Complete</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 100px;
+    }
+    .spinner {
+      margin: 20px auto;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #ccc;
+      border-top: 4px solid #333;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-  <p>✅ Authentication Complete! You can close this window.</p>
+  <p id="status">⏳ Finishing authentication...</p>
+  <div class="spinner"></div>
 
   <script>
-(async () => {
-  const params = new URLSearchParams(window.location.search)
-  const code = params.get("code")
-  const state = params.get("state")
+    (async () => {
+      const params = new URLSearchParams(window.location.search)
+      const code = params.get("code")
+      const state = params.get("state")
 
-  console.log("🔁 Code:", code)
-  console.log("🧠 State:", state)
+      console.log("🔁 Code:", code)
+      console.log("🧠 State:", state)
 
-  if (code && state) {
-    // ✅ save state back to localStorage so Framer can access it
-localStorage.setItem("access_token", json.access_token)
+      if (code && state) {
+        try {
+          const res = await fetch("https://framer-plugin-oauth.weareharton.workers.dev/exchange", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code, state })
+          })
 
-    try {
-      const res = await fetch("https://framer-plugin-oauth.weareharton.workers.dev/exchange", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ code, state })
-      })
+          const result = await res.json()
+          console.log("✅ Sent code to backend:", result)
 
-      const json = await res.json()
-      console.log("✅ Sent code to backend:", json)
-    } catch (e) {
-      console.error("❌ Error sending code to backend:", e)
-    }
-  } else {
-    console.error("❌ Missing code or state in URL params")
-  }
-})()
-</script>
-
-
+          if (result.success) {
+            localStorage.setItem("oauth_state", state)
+            document.getElementById("status").innerText = "✅ Authentication complete! You can close this window."
+            document.querySelector(".spinner").style.display = "none"
+          } else {
+            throw new Error("Token exchange failed.")
+          }
+        } catch (e) {
+          console.error("❌ Error sending code to backend:", e)
+          document.getElementById("status").innerText = "❌ Authentication failed."
+        }
+      } else {
+        console.error("❌ Missing code or state in URL params")
+        document.getElementById("status").innerText = "❌ Invalid callback URL."
+      }
+    })()
+  </script>
 </body>
 </html>
