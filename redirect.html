@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
-<head><title>OAuth Redirect</title></head>
+<head>
+  <title>OAuth Redirect</title>
+</head>
 <body>
   <script>
     const code = new URLSearchParams(window.location.search).get("code");
-    const channel = new BroadcastChannel("hartonsync-auth");
 
     if (code) {
-      channel.postMessage({ code });
-      document.body.innerHTML = `<p>✅ OAuth successful. You can close this window.</p>`;
-      setTimeout(() => window.close(), 2000);
+      localStorage.setItem("hartonsync_code", code);
+      document.body.innerHTML = "✅ OAuth successful. You can close this window.";
     } else {
-      document.body.innerHTML = `<p>❌ Code not found.</p>`;
+      document.body.innerHTML = "❌ OAuth failed. No code found.";
     }
   </script>
 </body>
