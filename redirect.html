@@ -1,16 +1,14 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>OAuth Redirect</title>
-  </head>
+  <head><title>OAuth Redirect</title></head>
   <body>
     <script>
       const code = new URLSearchParams(window.location.search).get("code");
       if (code) {
         localStorage.setItem("hartonsync_code", code);
-        window.close();
+        window.close(); // auto-closes after storing
       } else {
-        alert("❌ Code not found");
+        alert("❌ Code not found in redirect.html");
       }
     </script>
   </body>
