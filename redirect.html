@@ -8,30 +8,34 @@
   <p>✅ Authentication Complete! You can close this window.</p>
 
   <script>
-    (async () => {
-      const params = new URLSearchParams(window.location.search)
-      const code = params.get("code")
-      const state = params.get("state")
+(async () => {
+  const params = new URLSearchParams(window.location.search)
+  const code = params.get("code")
+  const state = params.get("state")
 
-      if (code && state) {
-        try {
-          const res = await fetch("https://framer-plugin-oauth.weareharton.workers.dev/exchange", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ code, state })
-          })
+  console.log("🔁 Code:", code)
+  console.log("🧠 State:", state)
 
-          const json = await res.json()
-          console.log("✅ Sent code to backend:", json)
-        } catch (e) {
-          console.error("❌ Error sending code to backend:", e)
-        }
-      } else {
-        console.error("❌ Missing code or state in URL params")
-      }
-    })()
-  </script>
+  if (code && state) {
+    try {
+      const res = await fetch("https://framer-plugin-oauth.weareharton.workers.dev/exchange", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code, state })
+      })
+
+      const json = await res.json()
+      console.log("✅ Sent code to backend:", json)
+    } catch (e) {
+      console.error("❌ Error sending code to backend:", e)
+    }
+  } else {
+    console.error("❌ Missing code or state in URL params")
+  }
+})()
+</script>
+
 </body>
 </html>
