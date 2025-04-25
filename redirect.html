@@ -1,18 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>OAuth Redirect</title>
+  <meta charset="UTF-8">
+  <title>Auth Complete</title>
 </head>
 <body>
-  <script>
-    const code = new URLSearchParams(window.location.search).get("code");
+  <p>✅ Login Successful! You can close this window now.</p>
 
-    if (code) {
-      localStorage.setItem("hartonsync_code", code);
-      document.body.innerHTML = "✅ OAuth successful. You can close this window.";
-    } else {
-      document.body.innerHTML = "❌ OAuth failed. No code found.";
-    }
+  <script>
+    (async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get("code");
+      const state = urlParams.get("state");
+
+      if (code && state) {
+        await fetch("https://framer-plugin-oauth.weareharton.workers.dev/exchange", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code, state })
+        });
+      }
+    })();
   </script>
 </body>
 </html>
