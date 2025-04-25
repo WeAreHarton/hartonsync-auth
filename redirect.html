@@ -3,39 +3,170 @@
 <head>
   <meta charset="UTF-8" />
   <title>Authentication Complete</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      margin-top: 100px;
-    }
-    .spinner {
-      margin: 20px auto;
-      width: 40px;
-      height: 40px;
-      border: 4px solid #ccc;
-      border-top: 4px solid #333;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: url('https://github.com/WeAreHarton/hartonsync-auth/blob/main/bg.jpg?raw=true') no-repeat center center;
+      background-size: cover;
+      color: #fff;
+      overflow: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: inherit;
+      backdrop-filter: blur(5px);
+      z-index: 0;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      z-index: 2;
+    }
+
+    .main-text {
+      font-size: 186.83px;
+      font-weight: 600;
+      letter-spacing: -0.1em;
+      line-height: 1;
+      opacity: 0;
+      animation: fadeFromLeft 1s ease-out forwards;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .sub-text-top {
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.1em;
+      margin-top: 20px;
+      opacity: 0;
+      animation: fadeFromBottom 0.8s ease-out 0.5s forwards;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .sub-text-bottom {
+      position: absolute;
+      bottom: 40px;
+      width: 100%;
+      text-align: center;
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: -0.1em;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .center-image {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.5;
+      mix-blend-mode: screen;
+    }
+
+    @keyframes fadeFromLeft {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeFromBottom {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <p id="status">⏳ Finishing authentication...</p>
-  <div class="spinner"></div>
+  <img class="center-image" id="auth-ring" src="https://github.com/WeAreHarton/hartonsync-auth/blob/main/comp%20rotate%20ring.jpg?raw=true" alt="auth ring" />
+
+  <div class="overlay">
+    <div class="sub-text-top" id="sub-text">Please wait while we authenticate you</div>
+    <div class="main-text" id="main-text">Finishing Auth</div>
+  </div>
+
+  <div class="sub-text-bottom" id="bottom-text">You can now safely close this page.</div>
 
   <script>
-    (async () => {
-      const params = new URLSearchParams(window.location.search)
-      const code = params.get("code")
-      const state = params.get("state")
+    const mainText = document.getElementById("main-text");
+    const subTextTop = document.getElementById("sub-text");
+    const params = new URLSearchParams(window.location.search);
+const code = params.get("code");
+const state = params.get("state");
 
-      console.log("🔁 Code:", code)
-      console.log("🧠 State:", state)
+if (code && state) {
+  // You're on 2nd screen, hide 'please wait' immediately
+  subTextTop.style.opacity = "0";
+  subTextTop.style.display = "none";
+} else {
+  // First screen: allow animation to play
+  subTextTop.style.opacity = "0";
+  subTextTop.style.animation = "fadeFromBottom 0.8s ease-out 0.5s forwards";
+}
+
+    const bottomText = document.getElementById("bottom-text");
+    const ring = document.getElementById("auth-ring");
+    const overlay = document.querySelector(".overlay");
+
+    let angle = 0;
+    let scale = 0.5;
+    let targetScale = 1;
+    let rotationSpeed = 0.01;
+    let slowing = false;
+    let animationRunning = true;
+
+    function easeInOut(current, target, factor = 0.05) {
+      return current + (target - current) * factor;
+    }
+
+    function animateRing() {
+      if (!animationRunning) return;
+
+      if (slowing) {
+        scale = easeInOut(scale, targetScale, 0.04);
+        rotationSpeed = easeInOut(rotationSpeed, 0, 0.03);
+      }
+
+      angle += rotationSpeed;
+      ring.style.transform = `translate(-50%, -50%) scale(${scale}) rotate(${angle}rad)`;
+
+      if (slowing && Math.abs(rotationSpeed) < 0.0001 && Math.abs(scale - targetScale) < 0.001) {
+        animationRunning = false;
+        ring.style.transform = `translate(-50%, -50%) scale(1) rotate(${angle}rad)`;
+        return;
+      }
+
+      requestAnimationFrame(animateRing);
+    }
+    requestAnimationFrame(animateRing);
+
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      const state = params.get("state");
+
+      console.log("🔁 Code:", code);
+      console.log("🧠 State:", state);
 
       if (code && state) {
         try {
@@ -43,27 +174,37 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code, state })
-          })
+          });
 
-          const result = await res.json()
-          console.log("✅ Sent code to backend:", result)
+          const result = await res.json();
+          console.log("✅ Sent code to backend:", result);
 
           if (result.success) {
-            localStorage.setItem("oauth_state", state)
-            document.getElementById("status").innerText = "✅ Authentication complete! You can close this window."
-            document.querySelector(".spinner").style.display = "none"
+            localStorage.setItem("oauth_state", state);
+            subTextTop.remove();
+            mainText.textContent = "Authorized";
+            overlay.style.top = "50%";
+            overlay.style.transform = "translate(-50%, -50%)";
+            bottomText.style.opacity = "1";
+            slowing = true;
           } else {
-            throw new Error("Token exchange failed.")
+            throw new Error("Token exchange failed");
           }
         } catch (e) {
-          console.error("❌ Error sending code to backend:", e)
-          document.getElementById("status").innerText = "❌ Authentication failed."
+          console.error("❌ Error:", e);
+          subTextTop.remove();
+          mainText.textContent = "Error Occurred";
+          bottomText.textContent = e.message;
+          bottomText.style.opacity = "1";
+          slowing = true;
         }
       } else {
-        console.error("❌ Missing code or state in URL params")
-        document.getElementById("status").innerText = "❌ Invalid callback URL."
+        mainText.textContent = "Error Occurred";
+        bottomText.textContent = "Invalid callback URL.";
+        bottomText.style.opacity = "1";
+        slowing = true;
       }
-    })()
+    })();
   </script>
 </body>
 </html>
