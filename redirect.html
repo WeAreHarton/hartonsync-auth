@@ -5,7 +5,8 @@
 <script>
   const params = new URLSearchParams(window.location.search);
   const code = params.get("code");
-  if (code && window.opener) {
+  if (code) {
+    alert("Code: " + code); // 👈 show directly to test
     window.opener.postMessage({ code }, "*");
     window.close();
   }
