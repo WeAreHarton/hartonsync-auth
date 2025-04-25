@@ -2,25 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Auth Complete</title>
+  <title>Authentication Complete</title>
 </head>
 <body>
-  <p>✅ Login Successful! You can close this window now.</p>
+  <p>✅ Authentication Complete! You can close this window.</p>
 
   <script>
     (async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get("code");
-      const state = urlParams.get("state");
+      const params = new URLSearchParams(window.location.search)
+      const code = params.get("code")
+      const state = params.get("state")
 
       if (code && state) {
-        await fetch("https://framer-plugin-oauth.weareharton.workers.dev/exchange", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code, state })
-        });
+        try {
+          const res = await fetch("https://framer-plugin-oauth.weareharton.workers.dev/exchange", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ code, state })
+          })
+
+          const json = await res.json()
+          console.log("✅ Sent code to backend:", json)
+        } catch (e) {
+          console.error("❌ Error sending code to backend:", e)
+        }
+      } else {
+        console.error("❌ Missing code or state in URL params")
       }
-    })();
+    })()
   </script>
 </body>
 </html>
