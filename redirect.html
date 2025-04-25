@@ -5,14 +5,12 @@
   </head>
   <body>
     <script>
-      const params = new URLSearchParams(window.location.search)
-      const code = params.get("code")
-
+      const code = new URLSearchParams(window.location.search).get("code");
       if (code) {
-        localStorage.setItem("hartonsync_oauth_code", code)
-        window.close()
+        localStorage.setItem("hartonsync_code", code);
+        window.close();
       } else {
-        alert("❌ Code not found.")
+        alert("❌ Code not found");
       }
     </script>
   </body>
