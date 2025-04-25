@@ -18,7 +18,7 @@
 
   if (code && state) {
     // ✅ save state back to localStorage so Framer can access it
-    localStorage.setItem("oauth_state", state)
+localStorage.setItem("access_token", json.access_token)
 
     try {
       const res = await fetch("https://framer-plugin-oauth.weareharton.workers.dev/exchange", {
